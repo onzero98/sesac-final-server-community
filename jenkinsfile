@@ -4,7 +4,7 @@ node {
      }
 
      stage('Build image') {
-         app = docker.build("dev210/monkeyCommunity")
+         app = docker.build("dev210/monkey-community")
      }
      stage('Push image') {
          docker.withRegistry('https://registry.hub.docker.com', 'docker-hub') {
