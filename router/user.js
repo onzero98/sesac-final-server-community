@@ -3,7 +3,9 @@ const router = express.Router();
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const Models = require('./../models');
+const { status } = require("express/lib/response");
 const User = Models.User;
+const Account = Models.Account;
 
 // 로그인
 router.post("/api/user/login", async (req, res) => {
@@ -47,26 +49,42 @@ router.post("/api/user/login", async (req, res) => {
     }
 });
 
-// 로그아웃
-// router.post("/api/user/logout", (req, res) => {
-
-// });
-
 // 회원가입
 router.post("/api/user/register", async (req, res) => {
 
     const salt = await bcrypt.genSalt(10);
 
-    User.create({
+    await User.create({
         userid: req.body.userid,
         password: await bcrypt.hash(req.body.password, salt),
         nickname: req.body.nickname,
-    }).then((result) => {
+    }).catch((err)=>{
+        res.send(err)
+    }).then((result)=>{
+        Account.create({
+        user_id: result.dataValues.userid,
+    })
         res.send(result);
-    }).catch((err) => {
-        res.send(err);
-    });
+    })
 });
+
+// 회원탈퇴
+router.delete("/api/user/leave", async (req, res) => {
+
+    const loginUser = await User.findOne({ where: { userid: req.body.userid }})
+
+    if(loginUser){
+        try {
+            loginUser.destroy();
+            res.send({msg:"계정 삭제 되었음"})
+        } catch (error) {
+            res.send({msg:"계정 삭제중 에러남"})
+        }
+    } else {
+        res.send({msg: "그런 계정 못찾음"})
+    }
+});
+    
 
 // 사용자 정보 제공
 router.get("/api/user/userinfo", (req, res) => {
@@ -74,6 +92,7 @@ router.get("/api/user/userinfo", (req, res) => {
     if (!authorization) {
         return res.send(false);
     }
+
     const token = authorization.split(" ")[1];
     const secret = req.app.get("jwt-secret");
     jwt.verify(token, secret, (err, data) => {
@@ -83,8 +102,13 @@ router.get("/api/user/userinfo", (req, res) => {
         User.findOne({
             where: {nickname: data.nickname}
         }).then((result)=>{
-            res.send({
-                result
+            Account.findOne({
+                where: {user_id: result.userid}
+            }).then((final)=>{
+                res.send({
+                    nickname: result.nickname, 
+                    points: final.points
+                });
             })
         })
     });

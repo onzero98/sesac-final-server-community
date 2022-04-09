@@ -40,14 +40,14 @@ Object.keys(db).forEach(modelName => {
     }
 });
 
-const post = {
-    title: "주식·투자",
-    url: "/stock",
-};
+// const post = {
+//     tags: "주식·투자",
+//     url: "/stock",
+// };
 
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
 
-new db.Topic(post).save();
+// new db.Topic(post).save();
 
 module.exports = db;

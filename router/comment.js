@@ -3,7 +3,7 @@ const router = express.Router();
 const jwt = require("jsonwebtoken");
 const Models = require('./../models');
 const Comment = Models.Comment;
-const User = Models.User;
+const Account = Models.Account;
 
 // 댓글 작성
 router.post("/api/comment/post", async (req, res) => {
@@ -31,7 +31,7 @@ router.post("/api/comment/post", async (req, res) => {
         };
 
         const newComment = await new Comment(post).save();
-        User.increment({points: 50},{where: {userid: data.userid}})
+        // Account.increment({points: 50},{where: {user_id: data.id}})
         res.send(newComment);
     })
 });
