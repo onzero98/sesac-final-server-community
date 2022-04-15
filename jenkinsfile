@@ -19,7 +19,7 @@ pipeline {
 
         stage('Checkout SCM') {
             steps {
-                url: 'https://github.com/onzero98/sesac-final-server-community.git',
+                git url: 'https://github.com/onzero98/sesac-final-server-community.git',
                 branch: 'main',
             }
         }
