@@ -3,7 +3,6 @@ pipeline {
     environment {
         DOCKERHUB_USERNAME = "dev210"
         APP_NAME = "monkey-community"
-        IMAGE_TAG = "${BUILD_NUMBER}"
         IMAGE_NAME = "${DOCKERHUB_USERNAME}" + "/" + "${APP_NAME}"
     }
 
@@ -19,15 +18,14 @@ pipeline {
 
         stage('Checkout SCM') {
             steps {
-                git url: 'https://github.com/onzero98/sesac-final-server-community.git',
-                branch: 'main',
+                checkout scm
             }
         }
 
         stage('Build Docker Image') {
             steps {
                 script {
-                    docker_image = docker.build "${IMAGE_NAME}"
+                    docker_image = docker.build("${IMAGE_NAME}")
                 }
             }
         }
@@ -35,20 +33,18 @@ pipeline {
         stage('Push Docker Image') {
             steps {
                 script {
-                    docker.withRegistry('https://registry.hub.docker.com', docker-hub) {
-                        docker_image.push("${BUILD_NUMBER}")
+                    docker.withRegistry('', 'docker-hub') {
+                        docker_image.push("${env.BUILD_NUMBER}")
                         docker_image.push("latest")
                     }
                 }
             }
         }
 
-        stage('Build Docker Image') {
-            // ee
+        stage('Update GitOps Repo') {
             steps {
-                sh "docker build -t ${IMAGE_NAME}:${IMAGE_TAG} ."
-                sh "docker build -t ${IMAGE_NAME}:latest ."
+                build job: 'updateManifest', parameters: [string(name: 'DOCKERTAG', value: env.BUILD_NUMBER)]
             }
         }
     }
-} 
+}
