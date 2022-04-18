@@ -18,6 +18,7 @@ router.post("/api/v1/user/login", async (req, res) => {
                     id: loginUser.id,
                     userid: loginUser.userid,
                     nickname: loginUser.nickname,
+                    role: loginUser.role,
                 },
                 secret,
                 {
@@ -29,6 +30,7 @@ router.post("/api/v1/user/login", async (req, res) => {
             res.send({
                 userid: loginUser.userid,
                 nickname: loginUser.nickname,
+                role: loginUser.role,
                 token: token,
                 error: false,
                 msg: "로그인 성공",
