@@ -6,7 +6,6 @@ const { sequelize } = require('./models');
 
 const {
     article,
-    account,
     topic,
     comment,
     user,
@@ -36,7 +35,6 @@ sequelize.sync({force: false}).then(()=>{
 
 // API
 app.use(article);
-app.use(account);
 app.use(topic);
 app.use(comment);
 app.use(user);

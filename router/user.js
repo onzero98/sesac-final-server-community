@@ -5,11 +5,9 @@ const jwt = require("jsonwebtoken");
 const Models = require('./../models');
 const { status } = require("express/lib/response");
 const User = Models.User;
-const Account = Models.Account;
 
 // 로그인
-router.post("/api/user/login", async (req, res) => {
-
+router.post("/api/v1/user/login", async (req, res) => {
     const loginUser = await User.findOne({ where: { userid: req.body.userid } });
     if (loginUser) {
         const password_valid = await bcrypt.compare(req.body.password, loginUser.password);
@@ -50,7 +48,7 @@ router.post("/api/user/login", async (req, res) => {
 });
 
 // 회원가입
-router.post("/api/user/register", async (req, res) => {
+router.post("/api/v1/user/register", async (req, res) => {
 
     const salt = await bcrypt.genSalt(10);
 
@@ -61,15 +59,12 @@ router.post("/api/user/register", async (req, res) => {
     }).catch((err)=>{
         res.send(err)
     }).then((result)=>{
-        Account.create({
-        user_id: result.dataValues.userid,
-    })
         res.send(result);
     })
 });
 
 // 회원탈퇴
-router.delete("/api/user/leave", async (req, res) => {
+router.delete("/api/v1/user/leave", async (req, res) => {
 
     const loginUser = await User.findOne({ where: { userid: req.body.userid }})
 
@@ -87,7 +82,7 @@ router.delete("/api/user/leave", async (req, res) => {
     
 
 // 사용자 정보 제공
-router.get("/api/user/userinfo", (req, res) => {
+router.get("/api/v1/user/userinfo", (req, res) => {
     const { authorization } = req.headers;
     if (!authorization) {
         return res.send(false);
@@ -102,20 +97,13 @@ router.get("/api/user/userinfo", (req, res) => {
         User.findOne({
             where: {nickname: data.nickname}
         }).then((result)=>{
-            Account.findOne({
-                where: {user_id: result.userid}
-            }).then((final)=>{
-                res.send({
-                    nickname: result.nickname, 
-                    points: final.points
-                });
-            })
+            res.send(result.nickname);
         })
     });
 });
 
 // 사용자 확인
-router.get("/api/user/verify", (req, res) => {
+router.get("/api/v1/user/verify", (req, res) => {
     const { authorization } = req.headers;
     if (!authorization) {
         return res.send(false);
